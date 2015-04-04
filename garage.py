@@ -26,12 +26,13 @@ RPi.GPIO.output(2, True)
 def click():
    fromNumber = request.args.get("From", "")
    if fromNumber in numbersAuthorizedToClick():
-      verb = request.args.get("Body", "").lower()
+      verb = request.args.get("Body", "")
+      verb = verb.strip()
+      verb = verb.lower()
       # when requested to list authorized people
-      if verb = "list":
-         client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
- 
-         message = client.messages.create(body="People authorized access are: " & PEOPLE_AUTHORIZED_TO_CLICK, to=fromNumber, from_=TWILIO_NUMBER)
+      if (verb == "list") and (fromNumber in numbersAuthorizedToAdminister()):
+         client = TwilioRestClient(ACCOUNT_SID, ACCOUNT_TOKEN)
+         message = client.messages.create(body="People (phone : name)  authorized to open are: " + str(PEOPLE_AUTHORIZED_TO_CLICK), to=fromNumber, from_=TWILIO_NUMBER)
       else:
          RPi.GPIO.output(2, False)
          time.sleep(1)
@@ -47,6 +48,9 @@ def fromName(fromNumber):
 
 def numbersAuthorizedToClick():
    return list(PEOPLE_AUTHORIZED_TO_CLICK.keys())
+
+def numbersAuthorizedToAdminister():
+   return list(ADMINS.keys())
 
 if __name__ == "__main__":
    app.run(host = '0.0.0.0', port = WEB_SERVER_PORT)
