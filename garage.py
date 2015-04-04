@@ -5,6 +5,7 @@ from flask import Flask
 from flask_mail import Mail
 from flask_mail import Message
 from config import *
+from twilio.rest import TwilioRestClient
 
 app = Flask(__name__)
 
@@ -25,13 +26,20 @@ RPi.GPIO.output(2, True)
 def click():
    fromNumber = request.args.get("From", "")
    if fromNumber in numbersAuthorizedToClick():
-      RPi.GPIO.output(2, False)
-      time.sleep(1)
-      RPi.GPIO.output(2, True)
-      with app.app_context():
-         msg = Message(fromName(fromNumber) + " clicked virtual garage door opener", \
-            recipients = PEOPLE_TO_NOTIFY)
-         mail.send(msg)
+      verb = request.args.get("Body", "").lower()
+      # when requested to list authorized people
+      if verb = "list":
+         client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
+ 
+         message = client.messages.create(body="People authorized access are: " & PEOPLE_AUTHORIZED_TO_CLICK, to=fromNumber, from_=TWILIO_NUMBER)
+      else:
+         RPi.GPIO.output(2, False)
+         time.sleep(1)
+         RPi.GPIO.output(2, True)
+         with app.app_context():
+            msg = Message(fromName(fromNumber) + " clicked virtual garage door opener", \
+               recipients = PEOPLE_TO_NOTIFY)
+            mail.send(msg)
    return "success"
 
 def fromName(fromNumber):
