@@ -1,0 +1,71 @@
+set version 12.1X44-D30.4
+set groups global system root-authentication encrypted-password "$1$uJoBSEb7$3VzQLnN1jISaGMHkuAod81"
+set system root-authentication encrypted-password "$1$wCIof5ab$oqCvglMQuXDZQRv7lUL23/"
+set system name-server 208.67.222.222
+set system name-server 208.67.220.220
+set system services ssh
+set system services telnet
+set system services xnm-clear-text
+set system services web-management http interface vlan.0
+set system services web-management https system-generated-certificate
+set system services web-management https interface vlan.0
+set system services dhcp router 192.168.1.1
+set system services dhcp pool 192.168.1.0/24 address-range low 192.168.1.2
+set system services dhcp pool 192.168.1.0/24 address-range high 192.168.1.125
+set system services dhcp pool 192.168.1.0/24 router 192.168.1.1
+set system services dhcp pool 192.168.2.0/24 address-range low 192.168.2.2
+set system services dhcp pool 192.168.2.0/24 address-range high 192.168.2.125
+set system services dhcp pool 192.168.2.0/24 router 192.168.2.1
+set system services dhcp propagate-settings fe-0/0/0.0
+set system syslog archive size 100k
+set system syslog archive files 3
+set system syslog user * any emergency  
+set system syslog file messages any critical
+set system syslog file messages authorization info
+set system syslog file interactive-commands interactive-commands error
+set system max-configurations-on-flash 5
+set system max-configuration-rollbacks 5
+set system license autoupdate url https://ae1.juniper.net/junos/key_retrieval
+set interfaces fe-0/0/0 unit 0
+set interfaces fe-0/0/1 unit 0 family ethernet-switching vlan members home
+set interfaces fe-0/0/2 unit 0 family ethernet-switching vlan members data_center
+set interfaces fe-0/0/3 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces fe-0/0/4 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces fe-0/0/5 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces fe-0/0/6 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces fe-0/0/7 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces vlan unit 0 family inet address 192.168.3.1/24
+set interfaces vlan unit 10 family inet address 192.168.1.1/24
+set interfaces vlan unit 20 family inet address 192.168.2.1/24
+set protocols stp
+set security screen ids-option untrust-screen icmp ping-death
+set security screen ids-option untrust-screen ip source-route-option
+set security screen ids-option untrust-screen ip tear-drop
+set security screen ids-option untrust-screen tcp syn-flood alarm-threshold 1024
+set security screen ids-option untrust-screen tcp syn-flood attack-threshold 200
+set security screen ids-option untrust-screen tcp syn-flood source-threshold 1024
+set security screen ids-option untrust-screen tcp syn-flood destination-threshold 2048
+set security screen ids-option untrust-screen tcp syn-flood timeout 20
+set security screen ids-option untrust-screen tcp land
+set security nat source rule-set trust-to-untrust from zone trust
+set security nat source rule-set trust-to-untrust to zone untrust
+set security nat source rule-set trust-to-untrust rule source-nat-rule match source-address 0.0.0.0/0
+set security nat source rule-set trust-to-untrust rule source-nat-rule then source-nat interface
+set security policies from-zone trust to-zone untrust policy trust-to-untrust match source-address any
+set security policies from-zone trust to-zone untrust policy trust-to-untrust match destination-address any
+set security policies from-zone trust to-zone untrust policy trust-to-untrust match application any
+set security policies from-zone trust to-zone untrust policy trust-to-untrust then permit
+set security zones security-zone trust host-inbound-traffic system-services all
+set security zones security-zone trust host-inbound-traffic protocols all
+set security zones security-zone trust interfaces vlan.0
+set security zones security-zone untrust screen untrust-screen
+set security zones security-zone untrust interfaces fe-0/0/0.0 host-inbound-traffic system-services dhcp
+set security zones security-zone untrust interfaces fe-0/0/0.0 host-inbound-traffic system-services tftp
+set security zones security-zone untrust interfaces fe-0/0/1.0 host-inbound-traffic system-services dhcp
+set security zones security-zone untrust interfaces fe-0/0/2.0 host-inbound-traffic system-services dhcp
+set vlans data_center vlan-id 20
+set vlans data_center l3-interface vlan.20
+set vlans home vlan-id 10
+set vlans home l3-interface vlan.10
+set vlans vlan-trust vlan-id 3
+set vlans vlan-trust l3-interface vlan.0
