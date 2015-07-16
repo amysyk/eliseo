@@ -14,6 +14,9 @@ set system services web-management session idle-timeout 60
 set system services dhcp pool 192.168.2.0/24 address-range low 192.168.2.1
 set system services dhcp pool 192.168.2.0/24 address-range high 192.168.2.254
 set system services dhcp pool 192.168.2.0/24 router 192.168.2.1
+set system services dhcp pool 192.168.3.0/24 address-range low 192.168.3.1
+set system services dhcp pool 192.168.3.0/24 address-range high 192.168.3.254
+set system services dhcp pool 192.168.3.0/24 router 192.168.3.1
 set system services dhcp propagate-settings fe-0/0/0
 set system syslog archive size 100k
 set system syslog archive files 3
