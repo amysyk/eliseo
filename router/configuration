@@ -27,6 +27,7 @@ set system license autoupdate url https://ae1.juniper.net/junos/key_retrieval
 set system ntp server us.ntp.pool.org
 set interfaces fe-0/0/0 unit 0 family inet dhcp
 set interfaces fe-0/0/1 unit 0 family inet address 192.168.2.1/24
+set interfaces fe-0/0/2 unit 0 family inet address 192.168.3.1/24
 set protocols stp
 set security screen ids-option untrust-screen icmp ping-death
 set security screen ids-option untrust-screen ip source-route-option
@@ -37,20 +38,47 @@ set security screen ids-option untrust-screen tcp syn-flood source-threshold 102
 set security screen ids-option untrust-screen tcp syn-flood destination-threshold 2048
 set security screen ids-option untrust-screen tcp syn-flood timeout 20
 set security screen ids-option untrust-screen tcp land
+set security nat source rule-set nsw_srcnat from zone DMZ
 set security nat source rule-set nsw_srcnat from zone Internal
 set security nat source rule-set nsw_srcnat to zone Internet
 set security nat source rule-set nsw_srcnat rule nsw-src-interface match source-address 0.0.0.0/0
 set security nat source rule-set nsw_srcnat rule nsw-src-interface match destination-address 0.0.0.0/0
 set security nat source rule-set nsw_srcnat rule nsw-src-interface then source-nat interface
+set security nat destination pool 192_168_3_2_5000 address 192.168.3.2/32
+set security nat destination pool 192_168_3_2_5000 address port 5000
+set security nat destination pool 192_168_3_2_443 address 192.168.3.2/32
+set security nat destination pool 192_168_3_2_443 address port 443
+set security nat destination rule-set nsw_destnat from zone Internet
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 match source-address 0.0.0.0/0
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 match destination-address 0.0.0.0/0
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 match destination-port 5000
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 then destination-nat pool 192_168_3_2_5000
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_443 match source-address 0.0.0.0/0
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_443 match destination-address 0.0.0.0/0
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_443 match destination-port 443
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_443 then destination-nat pool 192_168_3_2_443
 set security policies from-zone Internal to-zone Internet policy All_Internal_Internet match source-address any
 set security policies from-zone Internal to-zone Internet policy All_Internal_Internet match destination-address any
 set security policies from-zone Internal to-zone Internet policy All_Internal_Internet match application any
 set security policies from-zone Internal to-zone Internet policy All_Internal_Internet then permit
+set security policies from-zone Internet to-zone DMZ policy Web_Server_Internet_DMZ match source-address any
+set security policies from-zone Internet to-zone DMZ policy Web_Server_Internet_DMZ match destination-address any
+set security policies from-zone Internet to-zone DMZ policy Web_Server_Internet_DMZ match application junos-https
+set security policies from-zone Internet to-zone DMZ policy Web_Server_Internet_DMZ match application nsw-Web_Server_Internet_DMZ_0_http
+set security policies from-zone Internet to-zone DMZ policy Web_Server_Internet_DMZ then permit
+set security policies from-zone Internal to-zone DMZ policy Web_Server_Internal_DMZ match source-address any
+set security policies from-zone Internal to-zone DMZ policy Web_Server_Internal_DMZ match destination-address any
+set security policies from-zone Internal to-zone DMZ policy Web_Server_Internal_DMZ match application junos-http
+set security policies from-zone Internal to-zone DMZ policy Web_Server_Internal_DMZ match application junos-https
+set security policies from-zone Internal to-zone DMZ policy Web_Server_Internal_DMZ then permit
 set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services ping
 set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services dhcp
 set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services http
 set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services https
 set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services ssh
 set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services telnet
+set security zones security-zone DMZ interfaces fe-0/0/2.0 host-inbound-traffic system-services ping
 set security zones security-zone Internet interfaces fe-0/0/0.0 host-inbound-traffic system-services ping
 set security zones security-zone Internet interfaces fe-0/0/0.0 host-inbound-traffic system-services dhcp
+set applications application nsw-Web_Server_Internet_DMZ_0_http term 5000-term protocol tcp
+set applications application nsw-Web_Server_Internet_DMZ_0_http term 5000-term destination-port 5000
