@@ -1,21 +1,20 @@
 set version 12.1X44-D30.4
-set system autoinstallation delete-upon-commit
-set system autoinstallation traceoptions level verbose
-set system autoinstallation traceoptions flag all
-set system autoinstallation interfaces fe-0/0/0 bootp
-set system root-authentication encrypted-password "$1$zaj40/7F$TzAnppUGG0GWv/Zuz0vxS1"
+set system host-name srx100
+set system time-zone GMT-8
+set system root-authentication encrypted-password "$1$7S1un3LW$eOGV7XC5qpZoL2gBbbfrw."
 set system name-server 208.67.222.222
 set system name-server 208.67.220.220
+set system name-resolution no-resolve-on-input
 set system services ssh
 set system services telnet
-set system services xnm-clear-text
-set system services web-management http interface vlan.0
+set system services web-management http interface fe-0/0/1.0
 set system services web-management https system-generated-certificate
-set system services web-management https interface vlan.0
-set system services dhcp router 192.168.1.1
-set system services dhcp pool 192.168.1.0/24 address-range low 192.168.1.2
-set system services dhcp pool 192.168.1.0/24 address-range high 192.168.1.254
-set system services dhcp propagate-settings fe-0/0/0.0
+set system services web-management https interface fe-0/0/1.0
+set system services web-management session idle-timeout 60
+set system services dhcp pool 192.168.2.0/24 address-range low 192.168.2.1
+set system services dhcp pool 192.168.2.0/24 address-range high 192.168.2.254
+set system services dhcp pool 192.168.2.0/24 router 192.168.2.1
+set system services dhcp propagate-settings fe-0/0/0
 set system syslog archive size 100k
 set system syslog archive files 3
 set system syslog user * any emergency
@@ -25,15 +24,9 @@ set system syslog file interactive-commands interactive-commands error
 set system max-configurations-on-flash 5
 set system max-configuration-rollbacks 5
 set system license autoupdate url https://ae1.juniper.net/junos/key_retrieval
-set interfaces fe-0/0/0 unit 0
-set interfaces fe-0/0/1 unit 0 family ethernet-switching vlan members vlan-trust
-set interfaces fe-0/0/2 unit 0 family ethernet-switching vlan members vlan-trust
-set interfaces fe-0/0/3 unit 0 family ethernet-switching vlan members vlan-trust
-set interfaces fe-0/0/4 unit 0 family ethernet-switching vlan members vlan-trust
-set interfaces fe-0/0/5 unit 0 family ethernet-switching vlan members vlan-trust
-set interfaces fe-0/0/6 unit 0 family ethernet-switching vlan members vlan-trust
-set interfaces fe-0/0/7 unit 0 family ethernet-switching vlan members vlan-trust
-set interfaces vlan unit 0 family inet address 192.168.1.1/24
+set system ntp server us.ntp.pool.org
+set interfaces fe-0/0/0 unit 0 family inet dhcp
+set interfaces fe-0/0/1 unit 0 family inet address 192.168.2.1/24
 set protocols stp
 set security screen ids-option untrust-screen icmp ping-death
 set security screen ids-option untrust-screen ip source-route-option
@@ -44,18 +37,20 @@ set security screen ids-option untrust-screen tcp syn-flood source-threshold 102
 set security screen ids-option untrust-screen tcp syn-flood destination-threshold 2048
 set security screen ids-option untrust-screen tcp syn-flood timeout 20
 set security screen ids-option untrust-screen tcp land
-set security nat source rule-set trust-to-untrust from zone trust
-set security nat source rule-set trust-to-untrust to zone untrust
-set security nat source rule-set trust-to-untrust rule source-nat-rule match source-address 0.0.0.0/0
-set security nat source rule-set trust-to-untrust rule source-nat-rule then source-nat interface
-set security policies from-zone trust to-zone untrust policy trust-to-untrust match source-address any
-set security policies from-zone trust to-zone untrust policy trust-to-untrust match destination-address any
-set security policies from-zone trust to-zone untrust policy trust-to-untrust match application any
-set security policies from-zone trust to-zone untrust policy trust-to-untrust then permit
-set security zones security-zone trust host-inbound-traffic system-services all
-set security zones security-zone trust host-inbound-traffic protocols all
-set security zones security-zone trust interfaces vlan.0
-set security zones security-zone untrust screen untrust-screen
-set security zones security-zone untrust interfaces fe-0/0/0.0 host-inbound-traffic system-services dhcp
-set security zones security-zone untrust interfaces fe-0/0/0.0 host-inbound-traffic system-services tftp
-set vlans vlan-trust vlan-id 3
+set security nat source rule-set nsw_srcnat from zone Internal
+set security nat source rule-set nsw_srcnat to zone Internet
+set security nat source rule-set nsw_srcnat rule nsw-src-interface match source-address 0.0.0.0/0
+set security nat source rule-set nsw_srcnat rule nsw-src-interface match destination-address 0.0.0.0/0
+set security nat source rule-set nsw_srcnat rule nsw-src-interface then source-nat interface
+set security policies from-zone Internal to-zone Internet policy All_Internal_Internet match source-address any
+set security policies from-zone Internal to-zone Internet policy All_Internal_Internet match destination-address any
+set security policies from-zone Internal to-zone Internet policy All_Internal_Internet match application any
+set security policies from-zone Internal to-zone Internet policy All_Internal_Internet then permit
+set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services ping
+set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services dhcp
+set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services http
+set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services https
+set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services ssh
+set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services telnet
+set security zones security-zone Internet interfaces fe-0/0/0.0 host-inbound-traffic system-services ping
+set security zones security-zone Internet interfaces fe-0/0/0.0 host-inbound-traffic system-services dhcp
