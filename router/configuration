@@ -1,23 +1,21 @@
 set version 12.1X44-D30.4
-set system host-name srx100
-set system time-zone America/Log-Angeles
-set system root-authentication encrypted-password "$1$ZtOlLN/L$l1mySJKzW2vvRjrwr6JTz1"
+set system autoinstallation delete-upon-commit
+set system autoinstallation traceoptions level verbose
+set system autoinstallation traceoptions flag all
+set system autoinstallation interfaces fe-0/0/0 bootp
+set system root-authentication encrypted-password "$1$zaj40/7F$TzAnppUGG0GWv/Zuz0vxS1"
 set system name-server 208.67.222.222
 set system name-server 208.67.220.220
-set system name-resolution no-resolve-on-input
+set system services ssh
+set system services telnet
+set system services xnm-clear-text
+set system services web-management http interface vlan.0
 set system services web-management https system-generated-certificate
-set system services web-management https interface fe-0/0/1.0
-set system services web-management https interface fe-0/0/2.0
-set system services web-management session idle-timeout 60
+set system services web-management https interface vlan.0
+set system services dhcp router 192.168.1.1
 set system services dhcp pool 192.168.1.0/24 address-range low 192.168.1.2
 set system services dhcp pool 192.168.1.0/24 address-range high 192.168.1.254
-set system services dhcp pool 192.168.1.0/24 router 192.168.1.1
-set system services dhcp pool 192.168.2.0/24 address-range low 192.168.2.2
-set system services dhcp pool 192.168.2.0/24 address-range high 192.168.2.254
-set system services dhcp pool 192.168.2.0/24 router 192.168.2.1
-set system services dhcp static-binding b8:27:eb:4f:34:7c fixed-address 192.168.1.7
-set system services dhcp static-binding b8:27:eb:43:a6:ff fixed-address 192.168.1.9
-set system services dhcp propagate-settings fe-0/0/0
+set system services dhcp propagate-settings fe-0/0/0.0
 set system syslog archive size 100k
 set system syslog archive files 3
 set system syslog user * any emergency
@@ -27,12 +25,15 @@ set system syslog file interactive-commands interactive-commands error
 set system max-configurations-on-flash 5
 set system max-configuration-rollbacks 5
 set system license autoupdate url https://ae1.juniper.net/junos/key_retrieval
-set system ntp server us.ntp.pool.org
-set interfaces fe-0/0/0 unit 0 family inet dhcp
-set interfaces fe-0/0/1 unit 0 family inet address 192.168.3.1/24
-set interfaces fe-0/0/2 unit 0 family inet address 192.168.2.1/24
-set routing-options static route 0.0.0.0/0 next-hop 192.168.1.1
-set routing-options static route 192.168.2.0/24 next-hop 192.168.2.1
+set interfaces fe-0/0/0 unit 0
+set interfaces fe-0/0/1 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces fe-0/0/2 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces fe-0/0/3 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces fe-0/0/4 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces fe-0/0/5 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces fe-0/0/6 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces fe-0/0/7 unit 0 family ethernet-switching vlan members vlan-trust
+set interfaces vlan unit 0 family inet address 192.168.1.1/24
 set protocols stp
 set security screen ids-option untrust-screen icmp ping-death
 set security screen ids-option untrust-screen ip source-route-option
@@ -43,30 +44,18 @@ set security screen ids-option untrust-screen tcp syn-flood source-threshold 102
 set security screen ids-option untrust-screen tcp syn-flood destination-threshold 2048
 set security screen ids-option untrust-screen tcp syn-flood timeout 20
 set security screen ids-option untrust-screen tcp land
-set security nat destination pool dst-nat-pool-1 address 192.168.1.7/32
-set security nat destination rule-set rs1 from interface fe-0/0/0.0
-set security policies traceoptions file trace_file
-set security policies from-zone data_center to-zone Internet policy All_data_center_Internet match source-address any
-set security policies from-zone data_center to-zone Internet policy All_data_center_Internet match destination-address any
-set security policies from-zone data_center to-zone Internet policy All_data_center_Internet match application any
-set security policies from-zone data_center to-zone Internet policy All_data_center_Internet then permit
-set security policies from-zone home to-zone Internet policy All_home_Internet match source-address any
-set security policies from-zone home to-zone Internet policy All_home_Internet match destination-address any
-set security policies from-zone home to-zone Internet policy All_home_Internet match application any
-set security policies from-zone home to-zone Internet policy All_home_Internet then permit
-set security policies from-zone data_center to-zone home policy All_data_center_home match source-address any
-set security policies from-zone data_center to-zone home policy All_data_center_home match destination-address any
-set security policies from-zone data_center to-zone home policy All_data_center_home match application any
-set security policies from-zone data_center to-zone home policy All_data_center_home then permit
-set security policies from-zone home to-zone data_center policy All_data_center_home match source-address any
-set security policies from-zone home to-zone data_center policy All_data_center_home match destination-address any
-set security policies from-zone home to-zone data_center policy All_data_center_home match application any
-set security policies from-zone home to-zone data_center policy All_data_center_home then permit
-set security zones security-zone data_center interfaces fe-0/0/1.0 host-inbound-traffic system-services ping
-set security zones security-zone data_center interfaces fe-0/0/1.0 host-inbound-traffic system-services dhcp
-set security zones security-zone data_center interfaces fe-0/0/1.0 host-inbound-traffic system-services https
-set security zones security-zone home interfaces fe-0/0/2.0 host-inbound-traffic system-services ping
-set security zones security-zone home interfaces fe-0/0/2.0 host-inbound-traffic system-services dhcp
-set security zones security-zone home interfaces fe-0/0/2.0 host-inbound-traffic system-services https
-set security zones security-zone Internet interfaces fe-0/0/0.0 host-inbound-traffic system-services ping
-set security zones security-zone Internet interfaces fe-0/0/0.0 host-inbound-traffic system-services dhcp
+set security nat source rule-set trust-to-untrust from zone trust
+set security nat source rule-set trust-to-untrust to zone untrust
+set security nat source rule-set trust-to-untrust rule source-nat-rule match source-address 0.0.0.0/0
+set security nat source rule-set trust-to-untrust rule source-nat-rule then source-nat interface
+set security policies from-zone trust to-zone untrust policy trust-to-untrust match source-address any
+set security policies from-zone trust to-zone untrust policy trust-to-untrust match destination-address any
+set security policies from-zone trust to-zone untrust policy trust-to-untrust match application any
+set security policies from-zone trust to-zone untrust policy trust-to-untrust then permit
+set security zones security-zone trust host-inbound-traffic system-services all
+set security zones security-zone trust host-inbound-traffic protocols all
+set security zones security-zone trust interfaces vlan.0
+set security zones security-zone untrust screen untrust-screen
+set security zones security-zone untrust interfaces fe-0/0/0.0 host-inbound-traffic system-services dhcp
+set security zones security-zone untrust interfaces fe-0/0/0.0 host-inbound-traffic system-services tftp
+set vlans vlan-trust vlan-id 3
