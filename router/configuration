@@ -84,6 +84,8 @@ set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-tra
 set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services telnet
 set security zones security-zone DMZ interfaces fe-0/0/2.0 host-inbound-traffic system-services ping
 set security zones security-zone DMZ interfaces fe-0/0/2.0 host-inbound-traffic system-services dhcp
+set security zones security-zone DMZ interfaces fe-0/0/2.0 host-inbound-traffic system-services http
+set security zones security-zone DMZ interfaces fe-0/0/2.0 host-inbound-traffic system-services https
 set security zones security-zone Internet interfaces fe-0/0/0.0 host-inbound-traffic system-services ping
 set security zones security-zone Internet interfaces fe-0/0/0.0 host-inbound-traffic system-services dhcp
 set applications application nsw-Web_Server_Internet_DMZ_0_http term 5000-term protocol tcp
