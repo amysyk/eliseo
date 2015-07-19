@@ -89,4 +89,4 @@ set security zones security-zone DMZ interfaces fe-0/0/2.0 host-inbound-traffic 
 set security zones security-zone Internet interfaces fe-0/0/0.0 host-inbound-traffic system-services ping
 set security zones security-zone Internet interfaces fe-0/0/0.0 host-inbound-traffic system-services dhcp
 set applications application nsw-Web_Server_Internet_DMZ_0_http term 5000-term protocol tcp
-set applications application nsw-Web_Server_Internet_DMZ_0_http term 5000-term destination-port 5000
+set applications application nsw-Web_Server_Internet_DMZ_0_http term 5000-term destination-port 5002
