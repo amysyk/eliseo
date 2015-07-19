@@ -17,7 +17,11 @@ set system services dhcp pool 192.168.2.0/24 router 192.168.2.1
 set system services dhcp pool 192.168.3.0/24 address-range low 192.168.3.1
 set system services dhcp pool 192.168.3.0/24 address-range high 192.168.3.254
 set system services dhcp pool 192.168.3.0/24 router 192.168.3.1
+set system services dhcp pool 192.168.4.0/24 address-range low 192.168.4.1
+set system services dhcp pool 192.168.4.0/24 address-range high 192.168.4.254
+set system services dhcp pool 192.168.4.0/24 router 192.168.4.1
 set system services dhcp static-binding b8:27:eb:4f:34:7c fixed-address 192.168.3.2
+set system services dhcp static-binding b8:27:eb:43:a6:ff fixed-address 192.168.4.2
 set system services dhcp propagate-settings fe-0/0/0
 set system syslog archive size 100k
 set system syslog archive files 3
@@ -32,6 +36,7 @@ set system ntp server us.ntp.pool.org
 set interfaces fe-0/0/0 unit 0 family inet dhcp
 set interfaces fe-0/0/1 unit 0 family inet address 192.168.2.1/24
 set interfaces fe-0/0/2 unit 0 family inet address 192.168.3.1/24
+set interfaces fe-0/0/3 unit 0 family inet address 192.168.4.1/24
 set protocols stp
 set security screen ids-option untrust-screen icmp ping-death
 set security screen ids-option untrust-screen ip source-route-option
