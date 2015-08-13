@@ -26,11 +26,11 @@ set system services dhcp pool 192.168.5.0/24 router 192.168.5.1
 set system services dhcp pool 192.168.6.0/24 address-range low 192.168.6.1
 set system services dhcp pool 192.168.6.0/24 address-range high 192.168.6.254
 set system services dhcp pool 192.168.6.0/24 router 192.168.6.1
-set system services dhcp static-binding b8:27:eb:4f:34:7c fixed-address 192.168.3.2
 set system services dhcp static-binding b8:27:eb:43:a6:ff fixed-address 192.168.5.4
 set system services dhcp static-binding b8:27:eb:f5:94:9a fixed-address 192.168.5.2
 set system services dhcp static-binding 00:13:ef:70:25:0a fixed-address 192.168.2.5
 set system services dhcp static-binding 00:17:88:12:01:0c fixed-address 192.168.5.3
+set system services dhcp static-binding b8:27:eb:4f:34:7c fixed-address 192.168.5.5
 set system services dhcp propagate-settings fe-0/0/0
 set system syslog archive size 100k
 set system syslog archive files 3
@@ -65,21 +65,21 @@ set security nat source rule-set nsw_srcnat to zone Internet
 set security nat source rule-set nsw_srcnat rule nsw-src-interface match source-address 0.0.0.0/0
 set security nat source rule-set nsw_srcnat rule nsw-src-interface match destination-address 0.0.0.0/0
 set security nat source rule-set nsw_srcnat rule nsw-src-interface then source-nat interface
-set security nat destination pool 192_168_3_2_5000 routing-instance default
-set security nat destination pool 192_168_3_2_5000 address 192.168.3.2/32
-set security nat destination pool 192_168_3_2_5000 address port 5002
 set security nat destination pool 192_168_5_4_5000 routing-instance default
 set security nat destination pool 192_168_5_4_5000 address 192.168.5.4/32
 set security nat destination pool 192_168_5_4_5000 address port 5000
+set security nat destination pool 192_168_5_5_5002 routing-instance default
+set security nat destination pool 192_168_5_5_5002 address 192.168.5.5/32
+set security nat destination pool 192_168_5_5_5002 address port 5002
 set security nat destination rule-set nsw_destnat from zone Internet
-set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 match source-address 0.0.0.0/0
-set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 match destination-address 0.0.0.0/0
-set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 match destination-port 5002
-set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 then destination-nat pool 192_168_3_2_5000
 set security nat destination rule-set nsw_destnat rule 1_Web_Server--DMZ_5000 match source-address 0.0.0.0/0
 set security nat destination rule-set nsw_destnat rule 1_Web_Server--DMZ_5000 match destination-address 0.0.0.0/0
 set security nat destination rule-set nsw_destnat rule 1_Web_Server--DMZ_5000 match destination-port 5000
 set security nat destination rule-set nsw_destnat rule 1_Web_Server--DMZ_5000 then destination-nat pool 192_168_5_4_5000
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 match source-address 0.0.0.0/0
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 match destination-address 0.0.0.0/0
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 match destination-port 5002
+set security nat destination rule-set nsw_destnat rule 0_Web_Server--DMZ_5000 then destination-nat pool 192_168_5_5_5002
 set security policies from-zone Internal to-zone Internet policy All_Internal_Internet match source-address any
 set security policies from-zone Internal to-zone Internet policy All_Internal_Internet match destination-address any
 set security policies from-zone Internal to-zone Internet policy All_Internal_Internet match application any
