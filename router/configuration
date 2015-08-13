@@ -29,7 +29,8 @@ set system services dhcp pool 192.168.6.0/24 router 192.168.6.1
 set system services dhcp static-binding b8:27:eb:4f:34:7c fixed-address 192.168.3.2
 set system services dhcp static-binding b8:27:eb:43:a6:ff fixed-address 192.168.4.2
 set system services dhcp static-binding b8:27:eb:f5:94:9a fixed-address 192.168.5.2
-set system services dhcp static-binding 00:17:88:12:01:0c fixed-address 192.168.6.2
+set system services dhcp static-binding 00:13:ef:70:25:0a fixed-address 192.168.2.5
+set system services dhcp static-binding 00:17:88:12:01:0c fixed-address 192.168.5.3
 set system services dhcp propagate-settings fe-0/0/0
 set system syslog archive size 100k
 set system syslog archive files 3
@@ -48,6 +49,7 @@ set interfaces fe-0/0/3 unit 0 family inet address 192.168.4.1/24
 set interfaces fe-0/0/4 unit 0 family inet address 192.168.5.1/24
 set interfaces fe-0/0/5 unit 0 family inet address 192.168.6.1/24
 set protocols stp
+set security address-book global address SCHEDULER 192.168.5.2/32
 set security screen ids-option untrust-screen icmp ping-death
 set security screen ids-option untrust-screen ip source-route-option
 set security screen ids-option untrust-screen ip tear-drop
@@ -106,6 +108,10 @@ set security policies from-zone DMZ to-zone DMZ policy ALL_DMZ_DMZ match source-
 set security policies from-zone DMZ to-zone DMZ policy ALL_DMZ_DMZ match destination-address any
 set security policies from-zone DMZ to-zone DMZ policy ALL_DMZ_DMZ match application any
 set security policies from-zone DMZ to-zone DMZ policy ALL_DMZ_DMZ then permit
+set security policies from-zone DMZ to-zone Internal policy SCHEDULER_DMZ_INTERNAL match source-address SCHEDULER
+set security policies from-zone DMZ to-zone Internal policy SCHEDULER_DMZ_INTERNAL match destination-address any
+set security policies from-zone DMZ to-zone Internal policy SCHEDULER_DMZ_INTERNAL match application any
+set security policies from-zone DMZ to-zone Internal policy SCHEDULER_DMZ_INTERNAL then permit
 set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services ping
 set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services dhcp
 set security zones security-zone Internal interfaces fe-0/0/1.0 host-inbound-traffic system-services http
@@ -138,3 +144,4 @@ set applications application nsw-Web_Server_Internet_DMZ_0_http term 5000-term p
 set applications application nsw-Web_Server_Internet_DMZ_0_http term 5000-term destination-port 5002
 set applications application nsw-Web_Server_Internet_DMZ_1_http term 5000-term protocol tcp
 set applications application nsw-Web_Server_Internet_DMZ_1_http term 5000-term destination-port 5000
+
