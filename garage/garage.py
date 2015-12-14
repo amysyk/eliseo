@@ -1,29 +1,21 @@
 import time
 import RPi.GPIO
+import requests
 from flask import request
 from flask import Flask
-from flask_mail import Mail
-from flask_mail import Message
 from config import *
 from twilio.rest import TwilioRestClient
 
 app = Flask(__name__)
 
-app.config["MAIL_SERVER"] = MAIL_SERVER
-app.config["MAIL_PORT"] = MAIL_PORT
-app.config["MAIL_USE_SSL"] = MAIL_USE_SSL
-app.config["MAIL_USERNAME"] = MAIL_USERNAME
-app.config["MAIL_PASSWORD"] = MAIL_PASSWORD
-app.config["MAIL_DEFAULT_SENDER"] = MAIL_DEFAULT_SENDER
-
-mail = Mail(app)
-
 RPi.GPIO.setmode(RPi.GPIO.BCM)
-RPi.GPIO.setup(2, RPi.GPIO.OUT)
-RPi.GPIO.output(2, True)
+RPi.GPIO.setup(VOLVO_PORT, RPi.GPIO.OUT)
+RPi.GPIO.output(VOLVO_PORT, True)
+RPi.GPIO.setup(ACURA_PORT, RPi.GPIO.OUT)
+RPi.GPIO.output(ACURA_PORT, True)
 
-@app.route("/2015-02-01/Garage/Doors/Right/Click")
-def click():
+@app.route("/v2/Garage/Doors/Volvo/Click")
+def clickVolvo():
    fromNumber = request.args.get("From", "")
    if fromNumber in numbersAuthorizedToClick():
       verb = request.args.get("Body", "")
@@ -34,13 +26,28 @@ def click():
          client = TwilioRestClient(ACCOUNT_SID, ACCOUNT_TOKEN)
          message = client.messages.create(body="People (phone : name)  authorized to open are: " + str(PEOPLE_AUTHORIZED_TO_CLICK), to=fromNumber, from_=TWILIO_NUMBER)
       else:
-         RPi.GPIO.output(2, False)
+         RPi.GPIO.output(VOLVO_PORT, False)
          time.sleep(1)
-         RPi.GPIO.output(2, True)
-         with app.app_context():
-            msg = Message(fromName(fromNumber) + " clicked virtual garage door opener", \
-               recipients = PEOPLE_TO_NOTIFY)
-            mail.send(msg)
+         RPi.GPIO.output(VOLVO_PORT, True)
+         req = requests.request('GET', SLACK_URL_START + fromName(fromNumber) + "%20clicked%20volvo%20door%20opener" + SLACK_URL_END)
+   return "success"
+
+@app.route("/v2/Garage/Doors/Acura/Click")
+def clickAcura():
+   fromNumber = request.args.get("From", "")
+   if fromNumber in numbersAuthorizedToClick():
+      verb = request.args.get("Body", "")
+      verb = verb.strip()
+      verb = verb.lower()
+      # when requested to list authorized people
+      if (verb == "list") and (fromNumber in numbersAuthorizedToAdminister()):
+         client = TwilioRestClient(ACCOUNT_SID, ACCOUNT_TOKEN)
+         message = client.messages.create(body="People (phone : name)  authorized to open are: " + str(PEOPLE_AUTHORIZED_TO_CLICK), to=fromNumber, from_=TWILIO_NUMBER)
+      else:
+         RPi.GPIO.output(ACURA_PORT, False)
+         time.sleep(4)
+         RPi.GPIO.output(ACURA_PORT, True)
+         req = requests.request('GET', SLACK_URL_START + fromName(fromNumber) + "%20clicked%20acura%20door%20opener" + SLACK_URL_END)
    return "success"
 
 def fromName(fromNumber):
