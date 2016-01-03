@@ -45,7 +45,7 @@ def clickAcura():
          message = client.messages.create(body="People (phone : name)  authorized to open are: " + str(PEOPLE_AUTHORIZED_TO_CLICK), to=fromNumber, from_=TWILIO_NUMBER)
       else:
          RPi.GPIO.output(ACURA_PORT, False)
-         time.sleep(2)
+         time.sleep(3)
          RPi.GPIO.output(ACURA_PORT, True)
          req = requests.request('GET', SLACK_URL_START + fromName(fromNumber) + "%20clicked%20acura%20door%20opener" + SLACK_URL_END)
    return "success"
@@ -61,3 +61,4 @@ def numbersAuthorizedToAdminister():
 
 if __name__ == "__main__":
    app.run(host = '0.0.0.0', port = WEB_SERVER_PORT)
+
