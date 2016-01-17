@@ -6,7 +6,7 @@ from config import *
 
 app = Flask(__name__)
 
-io.setmode(RPi.GPIO.BCM)
+io.setmode(io.BCM)
 io.setup(IN_GARAGE_DOOR_PORT, io.IN, pull_up_down=io.PUD_UP)
 
 @app.route("/v1/Security/Doors/InGarageDoor/State")
