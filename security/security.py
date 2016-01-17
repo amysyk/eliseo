@@ -13,7 +13,7 @@ io.setup(IN_GARAGE_DOOR_PORT, io.IN, pull_up_down=io.PUD_UP)
 def inGarageDoorState():
    if io.input(IN_GARAGE_DOOR_PORT):
       state = "Open"
-   else
+   else:
       state = "Closed"
    return state
 if __name__ == "__main__":
